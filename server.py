@@ -20,7 +20,7 @@ def webhook():
         print("==========================================")
 
         # filtra SOLO ordini allegro
-        platform = data.get("PlatformName")  # <-- questo è il campo corretto
+        platform = data.get("PlatformName")
         if platform != "Allegro":
             print(f"[IGNORO] Webhook non Allegro → {platform}")
             return jsonify({"ignored": True}), 200
@@ -37,13 +37,23 @@ def webhook():
 
         # aggiorna Allegro SOLO quando esiste un tracking valido
         if event == "TRACKING_UPDATE" and tracking:
-            print(f"[OK] Aggiornamento spedizione Allegro → {order_id}")
+            print(f"[OK] Webhook valido per Allegro → ordine {order_id}")
             print(f"     Tracking: {tracking}, Corriere: {carrier}")
+            print("     Invio aggiornamento tracking ad Allegro...")
 
-            # Chiamata alla tua funzione
             resp = aggiorna_ordine_allegro(order_id, carrier, tracking)
 
-            print("Risposta API Allegro:", resp)
+            print("\n===== RISPOSTA API ALLEGRO =====")
+            print(json.dumps(resp, indent=4, ensure_ascii=False))
+            print("================================")
+
+            # LOG SPECIFICO PER IL TRACKING
+            if isinstance(resp, dict) and ("error" not in resp):
+                print(f"[SUCCESSO] Tracking aggiornato su Allegro per ordine {order_id}")
+                print(f"           ({carrier} - {tracking})\n")
+            else:
+                print(f"[ERRORE] Allegro NON ha accettato il tracking per ordine {order_id}")
+                print("Possibili cause: ordine ancora NEW o stato non compatibile\n")
 
             return jsonify({
                 "ok": True,
