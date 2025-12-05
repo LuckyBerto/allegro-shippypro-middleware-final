@@ -19,35 +19,31 @@ def webhook():
         print(json.dumps(data, indent=4, ensure_ascii=False))
         print("==========================================")
 
-        # FILTRO SOLO ordini provenienti da Allegro
-        marketplace = data.get("MarketplacePlatform")
-        if marketplace != "Allegro":
-            print(f"[IGNORO] Webhook non Allegro → {marketplace}")
+        # filtra SOLO ordini allegro
+        platform = data.get("PlatformName")  # <-- questo è il campo corretto
+        if platform != "Allegro":
+            print(f"[IGNORO] Webhook non Allegro → {platform}")
             return jsonify({"ignored": True}), 200
 
-        # Recupero dati fondamentali
+        # estrazione campi
         event = data.get("Event")
-        order_id = data.get("OrderID")              # ID dell’ordine Allegro
-        tracking = data.get("tracking")             # tracking number
-        carrier = data.get("TrackingCarrier")       # corriere
+        order_id = data.get("OrderID")
+        tracking = data.get("TrackingNumber") or data.get("tracking")
+        carrier = data.get("CarrierName") or data.get("TrackingCarrier")
 
         if not order_id:
             print("ERRORE: OrderID mancante nel webhook")
             return jsonify({"error": "OrderID mancante"}), 400
 
-        # Decidiamo quando aggiornare Allegro
-        # ShippyPro NON invia "OrderShipped".
-        # Invia TRACKING_UPDATE con "code" e "message" vari.
-        # Se ha un tracking, lo consideriamo 'spedito'.
-
+        # aggiorna Allegro SOLO quando esiste un tracking valido
         if event == "TRACKING_UPDATE" and tracking:
             print(f"[OK] Aggiornamento spedizione Allegro → {order_id}")
             print(f"     Tracking: {tracking}, Corriere: {carrier}")
 
-            # Aggiorna Allegro
+            # Chiamata alla tua funzione
             resp = aggiorna_ordine_allegro(order_id, carrier, tracking)
 
-            print("Risposta Allegro:", resp)
+            print("Risposta API Allegro:", resp)
 
             return jsonify({
                 "ok": True,
@@ -57,7 +53,7 @@ def webhook():
                 "carrier": carrier
             }), 200
 
-        # Ignoro altri eventi
+        # ignoro il resto
         print(f"[IGNORO] Evento non rilevante: {event}")
         return jsonify({"ok": True, "ignored": True}), 200
 
