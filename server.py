@@ -15,15 +15,17 @@ def webhook():
     try:
         data = request.json
 
-        print("\n===== WEBHOOK RICEVUTO DA SHIPPYPRO =====")
-        print(json.dumps(data, indent=4, ensure_ascii=False))
-        print("==========================================")
-
         # filtra SOLO ordini allegro
         platform = data.get("PlatformName")
         if platform != "Allegro":
             print(f"[IGNORO] Webhook non Allegro → {platform}")
             return jsonify({"ignored": True}), 200
+        
+        # Se è davvero Allegro → allora dumpo il payload
+        print("\n===== WEBHOOK ALLEGRO RICEVUTO =====")
+        print(json.dumps(data, indent=4, ensure_ascii=False))
+        print("=====================================\n")
+
 
         # estrazione campi
         event = data.get("Event")
@@ -74,3 +76,4 @@ def webhook():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+
