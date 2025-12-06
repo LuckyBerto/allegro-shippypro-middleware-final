@@ -15,14 +15,14 @@ def webhook():
     try:
         data = request.json
 
-        # filtra SOLO ordini allegro
         platform_1 = data.get("PlatformName")
         platform_2 = data.get("MarketplacePlatform")
         
-        # Filtra SOLO Allegro
-        if platform_1 != "Allegro" and platform_2 != "Allegro":
+        # Riconosciamo ordini Allegro anche se MarketplacePlatform = "APIOrders"
+        if platform_1 != "Allegro" and platform_2 not in ["Allegro", "APIOrders"]:
             print(f"[IGNORO] Webhook non Allegro → PlatformName={platform_1}, MarketplacePlatform={platform_2}")
             return jsonify({"ignored": True}), 200
+
         
         # Se è Allegro → dump del payload
         print("\n===== WEBHOOK ALLEGRO RICEVUTO =====")
@@ -80,5 +80,6 @@ def webhook():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+
 
 
