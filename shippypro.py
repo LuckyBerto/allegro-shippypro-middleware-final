@@ -58,7 +58,7 @@ def formato_shippy(order):
         "Params": {
             "APIOrdersID": int(config["SHIPPYPRO_API_ORDERS_ID"]),
             "OrderID": order["id"],
-            "TransactionID": order["id"],
+            "TransactionID": order["id"] + "_test1"
             "Date": ts,
             "Currency": summary["totalToPay"]["currency"],
             "Total": total_amount,
@@ -123,3 +123,4 @@ def invio_ordine_shippy(order):
         "tracking_number": data.get("TrackingNumber"),
         "carrier": data.get("CourierName")
     }
+
