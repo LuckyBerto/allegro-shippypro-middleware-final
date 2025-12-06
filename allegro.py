@@ -3,17 +3,22 @@ import requests
 
 
 # config/tokens
+import os
+
 def carica_config():
-    with open("config.json", "r") as f:
-        return json.load(f)
+    return {
+        "CLIENT_ID": os.environ["ALLEGRO_CLIENT_ID"],
+        "CLIENT_SECRET": os.environ["ALLEGRO_CLIENT_SECRET"]
+    }
 
 def carica_tokens():
-    with open("tokens.json", "r") as f:
-        return json.load(f)
+    return {
+        "refresh_token": os.environ["ALLEGRO_REFRESH_TOKEN"]
+    }
 
 def salva_tokens(tokens):
-    with open("tokens.json", "w") as f:
-        json.dump(tokens, f, indent=4)
+    # In produzione su Render NON salviamo su file
+    pass
 
 
 # refresh token
@@ -107,4 +112,5 @@ def recupera_immagine_scraping_bs(offer_id):
 
     except Exception as e:
         print("[SCRAPING] Errore:", e)
+
         return None
