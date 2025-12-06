@@ -23,6 +23,7 @@ def salva_tokens(tokens):
 
 # refresh token
 def refresh_access_token():
+    print("DEBUG ENV REFRESH TOKEN LEN:", len(os.environ.get("ALLEGRO_REFRESH_TOKEN", "")))
     config = carica_config()
     tokens = carica_tokens()
 
@@ -114,3 +115,4 @@ def recupera_immagine_scraping_bs(offer_id):
         print("[SCRAPING] Errore:", e)
 
         return None
+
